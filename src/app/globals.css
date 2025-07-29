@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'prismjs/themes/prism-tomorrow.css';
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md border border-gray-200;
+  }
+  
+  .algorithm-node {
+    @apply w-12 h-12 rounded-lg border-2 border-gray-300 bg-white flex items-center justify-center font-medium text-sm transition-all duration-300;
+  }
+  
+  .algorithm-node.comparing {
+    @apply border-algorithm-compare bg-algorithm-compare text-white;
+  }
+  
+  .algorithm-node.swapping {
+    @apply border-algorithm-swap bg-algorithm-swap text-white;
+  }
+  
+  .algorithm-node.sorted {
+    @apply border-algorithm-sorted bg-algorithm-sorted text-white;
+  }
+  
+  .algorithm-node.current {
+    @apply border-algorithm-current bg-algorithm-current text-white;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
