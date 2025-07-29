@@ -46,6 +46,10 @@
   .algorithm-node.current {
     @apply border-algorithm-current bg-algorithm-current text-white;
   }
+  
+  .algorithm-node.highlighted {
+    @apply border-blue-500 bg-blue-500 text-white;
+  }
 }
 
 @layer utilities {

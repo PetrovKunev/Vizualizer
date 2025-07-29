@@ -37,7 +37,6 @@ export function AlgorithmVisualizer({
   // Generate initial data only on client side to prevent hydration mismatch
   useEffect(() => {
     if (data.length === 0) {
-      // Generate initial data for all algorithms
       setData(generateRandomArray(10));
     }
   }, [data.length, algorithmId]);
@@ -118,20 +117,21 @@ export function AlgorithmVisualizer({
           // Handle remove operations for data structures
           if (step.indices.length === 1) {
             const newData = [...data];
-            const index = step.indices[0];
-            
-            if (index >= 0 && index < newData.length) {
-              // For stack (remove from end) and queue (remove from beginning)
-              if (algorithmId === 'stack' && index === newData.length - 1) {
-                newData.pop();
-              } else if (algorithmId === 'queue' && index === 0) {
-                newData.shift();
-              } else {
-                // For list and linkedList (remove at specific index)
+            // Always use the appropriate method for each data structure
+            if (algorithmId === 'stack') {
+              // Stack always removes from the end (LIFO)
+              newData.pop();
+            } else if (algorithmId === 'queue') {
+              // Queue always removes from the beginning (FIFO)
+              newData.shift();
+            } else {
+              // For list and linkedList, remove at specific index
+              const index = step.indices[0];
+              if (index >= 0 && index < newData.length) {
                 newData.splice(index, 1);
               }
-              setData(newData);
             }
+            setData(newData);
           }
           break;
       }
@@ -173,8 +173,10 @@ export function AlgorithmVisualizer({
   // Enhanced visualization for complex algorithms
   const isComplexAlgorithm = algorithmId.includes('merge') || algorithmId.includes('quick') || algorithmId.includes('graph') || algorithmId.includes('tree');
   
-  // Check if this is a stack visualization
+  // Check if this is a special data structure
   const isStack = algorithmId === 'stack';
+  const isQueue = algorithmId === 'queue';
+  const isLinkedList = algorithmId === 'linked-list';
 
   return (
     <div className="flex-1 bg-gray-50 p-8">
@@ -215,6 +217,146 @@ export function AlgorithmVisualizer({
             >
               Generate New Data
             </button>
+            {/* Data structure specific buttons */}
+            {(isStack || isQueue || isLinkedList) && (
+              <div className="flex space-x-2 ml-4">
+                {isStack && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newValue = Math.floor(Math.random() * 90) + 10;
+                        const newData = [...data, newValue];
+                        setData(newData);
+                        setVisualState({
+                          comparing: [],
+                          swapping: [],
+                          sorted: [],
+                          highlighted: [newData.length - 1],
+                          subarrays: [],
+                        });
+                        // Reset animation controls
+                        animationControls.reset();
+                      }}
+                      className="btn-primary text-sm"
+                    >
+                      Push
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (data.length > 0) {
+                          const newData = [...data];
+                          newData.pop();
+                          setData(newData);
+                          setVisualState({
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            highlighted: [],
+                            subarrays: [],
+                          });
+                          // Reset animation controls
+                          animationControls.reset();
+                        }
+                      }}
+                      disabled={data.length === 0}
+                      className="btn-secondary text-sm disabled:opacity-50"
+                    >
+                      Pop
+                    </button>
+                  </>
+                )}
+                {isQueue && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newValue = Math.floor(Math.random() * 90) + 10;
+                        const newData = [...data, newValue];
+                        setData(newData);
+                        setVisualState({
+                          comparing: [],
+                          swapping: [],
+                          sorted: [],
+                          highlighted: [newData.length - 1],
+                          subarrays: [],
+                        });
+                        // Reset animation controls
+                        animationControls.reset();
+                      }}
+                      className="btn-primary text-sm"
+                    >
+                      Enqueue
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (data.length > 0) {
+                          const newData = [...data];
+                          newData.shift();
+                          setData(newData);
+                          setVisualState({
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            highlighted: [],
+                            subarrays: [],
+                          });
+                          // Reset animation controls
+                          animationControls.reset();
+                        }
+                      }}
+                      disabled={data.length === 0}
+                      className="btn-secondary text-sm disabled:opacity-50"
+                    >
+                      Dequeue
+                    </button>
+                  </>
+                )}
+                {isLinkedList && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newValue = Math.floor(Math.random() * 90) + 10;
+                        const newData = [...data, newValue];
+                        setData(newData);
+                        setVisualState({
+                          comparing: [],
+                          swapping: [],
+                          sorted: [],
+                          highlighted: [newData.length - 1],
+                          subarrays: [],
+                        });
+                        // Reset animation controls
+                        animationControls.reset();
+                      }}
+                      className="btn-primary text-sm"
+                    >
+                      Add Node
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (data.length > 0) {
+                          const newData = [...data];
+                          newData.pop();
+                          setData(newData);
+                          setVisualState({
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            highlighted: [],
+                            subarrays: [],
+                          });
+                          // Reset animation controls
+                          animationControls.reset();
+                        }
+                      }}
+                      disabled={data.length === 0}
+                      className="btn-secondary text-sm disabled:opacity-50"
+                    >
+                      Remove Node
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -229,32 +371,40 @@ export function AlgorithmVisualizer({
         )}
 
         {/* Stack-specific visualization */}
-        {isStack ? (
-          <div className="flex flex-col items-center justify-center h-96">
-            {data.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-gray-500">Loading...</div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center space-y-2">
-                <div className="text-sm text-gray-600 mb-4">Stack (LIFO - Last In, First Out)</div>
-                <div className="relative">
-                  {/* Stack container */}
-                  <div className="w-32 h-80 bg-gray-100 border-2 border-gray-300 rounded-lg flex flex-col-reverse overflow-hidden">
-                    <AnimatePresence mode="wait">
+        {isStack && (
+          <div className="flex flex-col items-center justify-center h-[600px]">
+            <div className="flex flex-col items-center space-y-6">
+              <div className="text-sm text-gray-600">Stack (LIFO - Last In, First Out)</div>
+              
+              {/* Operation indicator - moved to top with more space */}
+              {currentStep && (
+                <div className="text-xs text-blue-600 font-medium bg-blue-100 px-3 py-2 rounded max-w-64 text-center shadow-sm">
+                  {currentStep.description}
+                </div>
+              )}
+              
+              <div className="relative">
+                {/* Stack container */}
+                <div className="w-32 h-80 bg-gray-100 border-2 border-gray-300 rounded-lg flex flex-col-reverse overflow-hidden">
+                  {data.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+                      Empty Stack
+                    </div>
+                  ) : (
+                    <AnimatePresence mode="popLayout">
                       {data.map((value, index) => (
                         <motion.div
-                          key={`${index}-${value}`}
+                          key={`stack-${index}-${value}`}
                           layout
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={{ opacity: 0, y: -20 }}
                           animate={{ 
                             opacity: 1, 
                             y: 0,
                             scale: visualState.highlighted.includes(index) ? 1.05 : 1,
                           }}
-                          exit={{ opacity: 0, y: -20 }}
+                          exit={{ opacity: 0, y: -30 }}
                           transition={{ duration: 0.3 }}
-                          className={`w-full h-8 flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                          className={`w-full h-8 flex items-center justify-center text-xs font-medium transition-all duration-300 ${
                             visualState.highlighted.includes(index)
                               ? 'bg-blue-500 text-white'
                               : 'bg-white border-b border-gray-200'
@@ -264,67 +414,211 @@ export function AlgorithmVisualizer({
                         </motion.div>
                       ))}
                     </AnimatePresence>
-                  </div>
-                  {/* Top indicator */}
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 font-medium">
-                    TOP
-                  </div>
-                  {/* Bottom indicator */}
-                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 font-medium">
-                    BOTTOM
-                  </div>
+                  )}
                 </div>
-                <div className="text-sm text-gray-600 mt-4">
+              </div>
+              
+              {/* Status information - moved to bottom with more space */}
+              <div className="flex flex-col items-center space-y-3">
+                <div className="text-sm text-gray-600 text-center">
                   Stack has {data.length} elements. {data.length > 0 ? `Top element is ${data[data.length - 1]}` : 'Stack is empty'}
+                </div>
+                <div className="text-xs text-gray-500 text-center max-w-md">
+                  Stack operations: Push (add to top), Pop (remove from top), Peek (view top element)
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Queue-specific visualization */}
+        {isQueue && (
+          <div className="flex flex-col items-center justify-center h-[600px]">
+            <div className="flex flex-col items-center space-y-6">
+              <div className="text-sm text-gray-600">Queue (FIFO - First In, First Out)</div>
+              
+              {/* Operation indicator - moved to top with more space */}
+              {currentStep && (
+                <div className="text-xs text-blue-600 font-medium bg-blue-100 px-3 py-2 rounded max-w-64 text-center shadow-sm">
+                  {currentStep.description}
+                </div>
+              )}
+              
+              <div className="relative">
+                {/* Queue container */}
+                <div className="w-96 h-20 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center overflow-hidden">
+                  {data.length === 0 ? (
+                    <div className="flex items-center justify-center w-full h-full text-gray-500 text-sm">
+                      Empty Queue
+                    </div>
+                  ) : (
+                    <AnimatePresence mode="popLayout">
+                      {data.map((value, index) => (
+                        <motion.div
+                          key={`queue-${index}-${value}`}
+                          layout
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ 
+                            opacity: 1, 
+                            x: 0,
+                            scale: visualState.highlighted.includes(index) ? 1.05 : 1,
+                          }}
+                          exit={{ opacity: 0, x: -50 }}
+                          transition={{ duration: 0.3 }}
+                          className={`h-full w-16 flex items-center justify-center text-xs font-medium transition-all duration-300 border-r border-gray-200 ${
+                            visualState.highlighted.includes(index)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-white'
+                          }`}
+                        >
+                          {value}
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  )}
+                </div>
+                
+                {/* Front indicator - moved further left */}
+                <div className="absolute -left-16 top-1/2 transform -translate-y-1/2 text-xs text-gray-700 font-bold bg-white px-3 py-2 rounded shadow-md border-2 border-gray-300 z-10">
+                  FRONT
+                </div>
+                
+                {/* Rear indicator - moved further right */}
+                <div className="absolute -right-14 top-1/2 transform -translate-y-1/2 text-xs text-gray-700 font-bold bg-white px-3 py-2 rounded shadow-md border-2 border-gray-300 z-10">
+                  REAR
+                </div>
+              </div>
+              
+              {/* Status information - moved to bottom with more space */}
+              <div className="flex flex-col items-center space-y-3">
+                <div className="text-sm text-gray-600 text-center">
+                  Queue has {data.length} elements. {data.length > 0 ? `Front element is ${data[0]}` : 'Queue is empty'}
+                </div>
+                <div className="text-xs text-gray-500 text-center max-w-md">
+                  Queue operations: Enqueue (add to rear), Dequeue (remove from front), Peek (view front element)
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Linked List visualization */}
+        {isLinkedList && (
+          <div className="flex flex-col items-center justify-center h-96">
+            <div className="text-sm text-gray-600 mb-4">Linked List</div>
+            {data.length === 0 ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-gray-500 text-sm">Empty Linked List</div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-4">
+                {/* Operation indicator */}
+                {currentStep && (
+                  <div className="text-xs text-blue-600 font-medium bg-blue-100 px-2 py-1 rounded">
+                    {currentStep.description}
+                  </div>
+                )}
+                <div className="flex items-center space-x-4">
+                  <AnimatePresence mode="popLayout">
+                    {data.map((value, index) => (
+                      <motion.div
+                        key={`node-${index}-${value}`}
+                        layout
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: visualState.highlighted.includes(index) ? 1.1 : 1,
+                        }}
+                        exit={{ opacity: 0, scale: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-center"
+                      >
+                        <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center border-2 transition-all duration-300 ${
+                          visualState.highlighted.includes(index)
+                            ? 'bg-blue-500 text-white border-blue-600'
+                            : 'bg-white border-gray-300'
+                        }`}>
+                          <div className="text-lg font-bold">{value}</div>
+                          <div className="text-xs opacity-60">Node {index}</div>
+                        </div>
+                        {index < data.length - 1 && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="ml-2 mr-2"
+                          >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    ))}
+                    {data.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-gray-500 font-mono"
+                      >
+                        NULL
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             )}
+            <div className="text-xs text-gray-500 mt-2 text-center max-w-md">
+              Linked List operations: Add Node (append), Remove Node (delete), Traverse (visit all nodes)
+            </div>
           </div>
-        ) : (
-          /* Generic bar chart visualization for other algorithms */
+        )}
+
+        {/* Generic bar chart visualization for other algorithms */}
+        {!isStack && !isQueue && !isLinkedList && (
           <div className="flex items-end justify-center space-x-2 h-96">
             {data.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-gray-500">Loading...</div>
               </div>
             ) : (
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="popLayout">
                 {data.map((value, index) => (
-                <motion.div
-                  key={`${index}-${value}`}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0,
-                    scale: visualState.swapping.includes(index) ? 1.1 : 1,
-                  }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-col items-center"
-                >
-                  <div
-                    className={`algorithm-node mb-2 ${
-                      visualState.sorted.includes(index)
-                        ? 'sorted'
-                        : visualState.swapping.includes(index)
-                        ? 'swapping'
-                        : visualState.comparing.includes(index)
-                        ? 'comparing'
-                        : visualState.highlighted.includes(index)
-                        ? 'current'
-                        : ''
-                    }`}
-                    style={{
-                      height: `${(value / maxValue) * 300}px`,
-                      minHeight: '40px',
+                  <motion.div
+                    key={`bar-${index}-${value}`}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      scale: visualState.swapping.includes(index) ? 1.1 : 1,
                     }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center"
                   >
-                    <span className="text-xs font-medium">{value}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">{index}</span>
-                </motion.div>
-              ))}
+                    <div
+                      className={`algorithm-node mb-2 ${
+                        visualState.sorted.includes(index)
+                          ? 'sorted'
+                          : visualState.swapping.includes(index)
+                          ? 'swapping'
+                          : visualState.comparing.includes(index)
+                          ? 'comparing'
+                          : visualState.highlighted.includes(index)
+                          ? 'highlighted'
+                          : ''
+                      }`}
+                      style={{
+                        height: `${(value / maxValue) * 300}px`,
+                        minHeight: '30px',
+                      }}
+                    >
+                      <span className="text-xs font-medium">{value}</span>
+                    </div>
+                    <span className="text-xs text-gray-600">{index}</span>
+                  </motion.div>
+                ))}
               </AnimatePresence>
             )}
           </div>
