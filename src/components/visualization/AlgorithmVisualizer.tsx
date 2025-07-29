@@ -19,13 +19,20 @@ export function AlgorithmVisualizer({
   speed,
   onPlayingChange,
 }: AlgorithmVisualizerProps) {
-  const [data, setData] = useState<number[]>(() => generateRandomArray(10));
+  const [data, setData] = useState<number[]>([]);
   const [visualState, setVisualState] = useState({
     comparing: [] as number[],
     swapping: [] as number[],
     sorted: [] as number[],
     highlighted: [] as number[],
   });
+
+  // Generate initial data only on client side to prevent hydration mismatch
+  useEffect(() => {
+    if (data.length === 0) {
+      setData(generateRandomArray(10));
+    }
+  }, [data.length]);
 
   const algorithm = getAlgorithmImplementation(algorithmId);
   const steps = useMemo(() => {
@@ -103,7 +110,7 @@ export function AlgorithmVisualizer({
     animationControls.reset();
   };
 
-  const maxValue = Math.max(...data);
+  const maxValue = data.length > 0 ? Math.max(...data) : 1;
   const currentStep = steps[animationControls.currentStep];
 
   return (
@@ -149,8 +156,13 @@ export function AlgorithmVisualizer({
         </div>
 
         <div className="flex items-end justify-center space-x-2 h-96">
-          <AnimatePresence mode="wait">
-            {data.map((value, index) => (
+          {data.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-gray-500">Loading...</div>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              {data.map((value, index) => (
               <motion.div
                 key={`${index}-${value}`}
                 layout
@@ -186,7 +198,8 @@ export function AlgorithmVisualizer({
                 <span className="text-xs text-gray-500">{index}</span>
               </motion.div>
             ))}
-          </AnimatePresence>
+            </AnimatePresence>
+          )}
         </div>
 
         <div className="mt-6 flex items-center justify-between">
