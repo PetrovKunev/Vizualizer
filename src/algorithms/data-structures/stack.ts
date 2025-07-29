@@ -2,7 +2,6 @@ import { AlgorithmStep, AlgorithmImplementation } from '@/types/algorithm';
 
 export function generateStackSteps(data: number[]): AlgorithmStep[] {
   const steps: AlgorithmStep[] = [];
-  let currentLength = data.length;
   
   // If stack is empty, start with a push operation
   if (data.length === 0) {
@@ -18,21 +17,20 @@ export function generateStackSteps(data: number[]): AlgorithmStep[] {
       type: 'set',
       indices: [0],
       values: [pushValue],
-      description: `Added ${pushValue} to the top of the stack. Stack now has 1 element.`,
+      description: `Added ${pushValue} to the top of the stack.`,
     });
 
-    currentLength = 1;
     steps.push({
       type: 'complete',
       indices: [0],
-      description: `Stack now has ${currentLength} element. Top element is ${pushValue}.`,
+      description: `Successfully added element to the stack.`,
     });
   } else {
     // Show current stack state
     steps.push({
       type: 'highlight',
       indices: [data.length - 1], // Highlight top element
-      description: `Current stack has ${data.length} elements. Top element is ${data[data.length - 1]}.`,
+      description: `Current stack has ${data.length} elements.`,
     });
 
     // Simulate a push operation
@@ -47,14 +45,13 @@ export function generateStackSteps(data: number[]): AlgorithmStep[] {
       type: 'set',
       indices: [data.length],
       values: [pushValue],
-      description: `Added ${pushValue} to the top of the stack at index ${data.length}.`,
+      description: `Added ${pushValue} to the top of the stack.`,
     });
 
-    currentLength = data.length + 1;
     steps.push({
       type: 'complete',
       indices: [data.length],
-      description: `Stack now has ${currentLength} elements. Top element is ${pushValue}.`,
+      description: `Successfully added element to the stack.`,
     });
   }
 
