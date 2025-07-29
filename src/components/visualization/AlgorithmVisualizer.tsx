@@ -11,6 +11,11 @@ interface AlgorithmVisualizerProps {
   isPlaying: boolean;
   speed: number;
   onPlayingChange: (playing: boolean) => void;
+  onStepControls?: (controls: {
+    stepForward: () => void;
+    stepBackward: () => void;
+    reset: () => void;
+  }) => void;
 }
 
 export function AlgorithmVisualizer({
@@ -18,6 +23,7 @@ export function AlgorithmVisualizer({
   isPlaying,
   speed,
   onPlayingChange,
+  onStepControls,
 }: AlgorithmVisualizerProps) {
   const [data, setData] = useState<number[]>([]);
   const [visualState, setVisualState] = useState({
@@ -25,14 +31,16 @@ export function AlgorithmVisualizer({
     swapping: [] as number[],
     sorted: [] as number[],
     highlighted: [] as number[],
+    subarrays: [] as number[][], // For merge sort and other divide-and-conquer algorithms
   });
 
   // Generate initial data only on client side to prevent hydration mismatch
   useEffect(() => {
     if (data.length === 0) {
+      // Generate initial data for all algorithms
       setData(generateRandomArray(10));
     }
-  }, [data.length]);
+  }, [data.length, algorithmId]);
 
   const algorithm = getAlgorithmImplementation(algorithmId);
   const steps = useMemo(() => {
@@ -49,6 +57,17 @@ export function AlgorithmVisualizer({
       }
     },
   });
+
+  // Pass step controls to parent component
+  useEffect(() => {
+    if (onStepControls) {
+      onStepControls({
+        stepForward: animationControls.stepForward,
+        stepBackward: animationControls.stepBackward,
+        reset: animationControls.reset,
+      });
+    }
+  }, [animationControls.stepForward, animationControls.stepBackward, animationControls.reset, onStepControls]);
 
   const updateVisualState = (step: AlgorithmStep) => {
     setVisualState(prev => {
@@ -78,6 +97,43 @@ export function AlgorithmVisualizer({
         case 'complete':
           newState.sorted = [...prev.sorted, ...step.indices];
           break;
+        case 'set':
+          // Handle set operations (like in merge sort and adding new elements)
+          if (step.values && step.indices.length === 1) {
+            const newData = [...data];
+            const index = step.indices[0];
+            const value = step.values[0];
+            
+            // If the index is beyond the current array length, add the element
+            if (index >= newData.length) {
+              newData.push(value);
+            } else {
+              // Otherwise, set the value at the existing index
+              newData[index] = value;
+            }
+            setData(newData);
+          }
+          break;
+        case 'remove':
+          // Handle remove operations for data structures
+          if (step.indices.length === 1) {
+            const newData = [...data];
+            const index = step.indices[0];
+            
+            if (index >= 0 && index < newData.length) {
+              // For stack (remove from end) and queue (remove from beginning)
+              if (algorithmId === 'stack' && index === newData.length - 1) {
+                newData.pop();
+              } else if (algorithmId === 'queue' && index === 0) {
+                newData.shift();
+              } else {
+                // For list and linkedList (remove at specific index)
+                newData.splice(index, 1);
+              }
+              setData(newData);
+            }
+          }
+          break;
       }
 
       return newState;
@@ -106,12 +162,19 @@ export function AlgorithmVisualizer({
       swapping: [],
       sorted: [],
       highlighted: [],
+      subarrays: [],
     });
     animationControls.reset();
   };
 
   const maxValue = data.length > 0 ? Math.max(...data) : 1;
   const currentStep = steps[animationControls.currentStep];
+
+  // Enhanced visualization for complex algorithms
+  const isComplexAlgorithm = algorithmId.includes('merge') || algorithmId.includes('quick') || algorithmId.includes('graph') || algorithmId.includes('tree');
+  
+  // Check if this is a stack visualization
+  const isStack = algorithmId === 'stack';
 
   return (
     <div className="flex-1 bg-gray-50 p-8">
@@ -155,52 +218,117 @@ export function AlgorithmVisualizer({
           </div>
         </div>
 
-        <div className="flex items-end justify-center space-x-2 h-96">
-          {data.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-gray-500">Loading...</div>
+        {/* Enhanced visualization for complex algorithms */}
+        {isComplexAlgorithm && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center space-x-2 text-sm text-blue-700">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span>Enhanced visualization mode for {algorithm?.info.name}</span>
             </div>
-          ) : (
-            <AnimatePresence mode="wait">
-              {data.map((value, index) => (
-              <motion.div
-                key={`${index}-${value}`}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  scale: visualState.swapping.includes(index) ? 1.1 : 1,
-                }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center"
-              >
-                <div
-                  className={`algorithm-node mb-2 ${
-                    visualState.sorted.includes(index)
-                      ? 'sorted'
-                      : visualState.swapping.includes(index)
-                      ? 'swapping'
-                      : visualState.comparing.includes(index)
-                      ? 'comparing'
-                      : visualState.highlighted.includes(index)
-                      ? 'current'
-                      : ''
-                  }`}
-                  style={{
-                    height: `${(value / maxValue) * 300}px`,
-                    minHeight: '40px',
-                  }}
-                >
-                  <span className="text-xs font-medium">{value}</span>
+          </div>
+        )}
+
+        {/* Stack-specific visualization */}
+        {isStack ? (
+          <div className="flex flex-col items-center justify-center h-96">
+            {data.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-gray-500">Loading...</div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                <div className="text-sm text-gray-600 mb-4">Stack (LIFO - Last In, First Out)</div>
+                <div className="relative">
+                  {/* Stack container */}
+                  <div className="w-32 h-80 bg-gray-100 border-2 border-gray-300 rounded-lg flex flex-col-reverse overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      {data.map((value, index) => (
+                        <motion.div
+                          key={`${index}-${value}`}
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ 
+                            opacity: 1, 
+                            y: 0,
+                            scale: visualState.highlighted.includes(index) ? 1.05 : 1,
+                          }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                          className={`w-full h-8 flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                            visualState.highlighted.includes(index)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-white border-b border-gray-200'
+                          }`}
+                        >
+                          {value}
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                  {/* Top indicator */}
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 font-medium">
+                    TOP
+                  </div>
+                  {/* Bottom indicator */}
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 font-medium">
+                    BOTTOM
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">{index}</span>
-              </motion.div>
-            ))}
-            </AnimatePresence>
-          )}
-        </div>
+                <div className="text-sm text-gray-600 mt-4">
+                  Stack has {data.length} elements. {data.length > 0 ? `Top element is ${data[data.length - 1]}` : 'Stack is empty'}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Generic bar chart visualization for other algorithms */
+          <div className="flex items-end justify-center space-x-2 h-96">
+            {data.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-gray-500">Loading...</div>
+              </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                {data.map((value, index) => (
+                <motion.div
+                  key={`${index}-${value}`}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0,
+                    scale: visualState.swapping.includes(index) ? 1.1 : 1,
+                  }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col items-center"
+                >
+                  <div
+                    className={`algorithm-node mb-2 ${
+                      visualState.sorted.includes(index)
+                        ? 'sorted'
+                        : visualState.swapping.includes(index)
+                        ? 'swapping'
+                        : visualState.comparing.includes(index)
+                        ? 'comparing'
+                        : visualState.highlighted.includes(index)
+                        ? 'current'
+                        : ''
+                    }`}
+                    style={{
+                      height: `${(value / maxValue) * 300}px`,
+                      minHeight: '40px',
+                    }}
+                  >
+                    <span className="text-xs font-medium">{value}</span>
+                  </div>
+                  <span className="text-xs text-gray-500">{index}</span>
+                </motion.div>
+              ))}
+              </AnimatePresence>
+            )}
+          </div>
+        )}
 
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center space-x-6 text-sm">
@@ -220,6 +348,12 @@ export function AlgorithmVisualizer({
               <div className="w-4 h-4 rounded bg-algorithm-sorted"></div>
               <span>Sorted</span>
             </div>
+            {isComplexAlgorithm && (
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 rounded bg-blue-500"></div>
+                <span>Enhanced</span>
+              </div>
+            )}
           </div>
           
           <div className="text-sm text-gray-600">

@@ -84,7 +84,8 @@ export const selectionSortImplementation: AlgorithmImplementation = {
     inPlace: true,
   },
   generateSteps: generateSelectionSortSteps,
-  code: `function selectionSort(arr) {
+  code: {
+    javascript: `function selectionSort(arr) {
   const n = arr.length;
   
   for (let i = 0; i < n - 1; i++) {
@@ -105,4 +106,31 @@ export const selectionSortImplementation: AlgorithmImplementation = {
   
   return arr;
 }`,
+    csharp: `public static void SelectionSort(int[] arr)
+{
+    int n = arr.Length;
+    
+    for (int i = 0; i < n - 1; i++)
+    {
+        int minIdx = i;
+        
+        // Find minimum element
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arr[j] < arr[minIdx])
+            {
+                minIdx = j;
+            }
+        }
+        
+        // Swap minimum with first element
+        if (minIdx != i)
+        {
+            int temp = arr[i];
+            arr[i] = arr[minIdx];
+            arr[minIdx] = temp;
+        }
+    }
+}`,
+  },
 };

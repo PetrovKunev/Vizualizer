@@ -108,7 +108,125 @@ export const SEARCHING_ALGORITHMS: AlgorithmInfo[] = [
   },
 ];
 
+export const GRAPH_ALGORITHMS: AlgorithmInfo[] = [
+  {
+    id: 'depth-first-search',
+    name: 'Depth-First Search',
+    category: 'graph',
+    description: 'Traverses a graph by exploring as far as possible along each branch before backtracking.',
+    timeComplexity: {
+      best: 'O(V + E)',
+      average: 'O(V + E)',
+      worst: 'O(V + E)',
+    },
+    spaceComplexity: 'O(V)',
+  },
+  {
+    id: 'breadth-first-search',
+    name: 'Breadth-First Search',
+    category: 'graph',
+    description: 'Traverses a graph by exploring all neighbors at the current depth before moving to the next level.',
+    timeComplexity: {
+      best: 'O(V + E)',
+      average: 'O(V + E)',
+      worst: 'O(V + E)',
+    },
+    spaceComplexity: 'O(V)',
+  },
+];
+
+export const TREE_ALGORITHMS: AlgorithmInfo[] = [
+  {
+    id: 'binary-tree-traversal',
+    name: 'Binary Tree Traversal',
+    category: 'tree',
+    description: 'Traverses a binary tree using inorder traversal (left, root, right).',
+    timeComplexity: {
+      best: 'O(n)',
+      average: 'O(n)',
+      worst: 'O(n)',
+    },
+    spaceComplexity: 'O(h)',
+  },
+];
+
+export const DATA_STRUCTURE_ALGORITHMS: AlgorithmInfo[] = [
+  {
+    id: 'array',
+    name: 'Array',
+    category: 'data-structure',
+    description: 'A linear data structure that stores elements in contiguous memory locations. Supports random access, insertion, and deletion operations.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(n)',
+      worst: 'O(n)',
+    },
+    spaceComplexity: 'O(n)',
+    stable: true,
+    inPlace: true,
+  },
+  {
+    id: 'stack',
+    name: 'Stack',
+    category: 'data-structure',
+    description: 'A LIFO (Last In, First Out) data structure where elements are added and removed from the same end (top).',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(1)',
+      worst: 'O(1)',
+    },
+    spaceComplexity: 'O(n)',
+    stable: true,
+    inPlace: true,
+  },
+  {
+    id: 'queue',
+    name: 'Queue',
+    category: 'data-structure',
+    description: 'A FIFO (First In, First Out) data structure where elements are added at the rear and removed from the front.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(1)',
+      worst: 'O(1)',
+    },
+    spaceComplexity: 'O(n)',
+    stable: true,
+    inPlace: true,
+  },
+  {
+    id: 'linked-list',
+    name: 'Linked List',
+    category: 'data-structure',
+    description: 'A linear data structure where elements are stored in nodes, and each node contains a data field and a reference to the next node.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(n)',
+      worst: 'O(n)',
+    },
+    spaceComplexity: 'O(n)',
+    stable: true,
+    inPlace: true,
+  },
+  {
+    id: 'list',
+    name: 'List',
+    category: 'data-structure',
+    description: 'A dynamic array that can grow and shrink. Provides fast access by index and supports add, remove, get, and set operations.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(n)',
+      worst: 'O(n)',
+    },
+    spaceComplexity: 'O(n)',
+    stable: true,
+    inPlace: true,
+  },
+];
+
 export const ALL_ALGORITHMS = [
   ...SORTING_ALGORITHMS,
   ...SEARCHING_ALGORITHMS,
+  ...GRAPH_ALGORITHMS,
+  ...TREE_ALGORITHMS,
+  ...DATA_STRUCTURE_ALGORITHMS,
 ];

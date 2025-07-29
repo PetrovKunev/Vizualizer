@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Footer } from '@/components/layout/Footer';
@@ -12,6 +12,21 @@ export default function Home() {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('bubble-sort');
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(500);
+  
+  // Refs to store step control functions
+  const stepControlsRef = useRef<{
+    stepForward: () => void;
+    stepBackward: () => void;
+    reset: () => void;
+  } | null>(null);
+
+  const handleStepControls = (controls: {
+    stepForward: () => void;
+    stepBackward: () => void;
+    reset: () => void;
+  }) => {
+    stepControlsRef.current = controls;
+  };
 
   return (
     <div className="flex h-screen">
@@ -31,6 +46,9 @@ export default function Home() {
               speed={speed}
               onSpeedChange={setSpeed}
               selectedAlgorithm={selectedAlgorithm}
+              onStepForward={() => stepControlsRef.current?.stepForward()}
+              onStepBackward={() => stepControlsRef.current?.stepBackward()}
+              onReset={() => stepControlsRef.current?.reset()}
             />
             
             <AlgorithmVisualizer 
@@ -38,6 +56,7 @@ export default function Home() {
               isPlaying={isPlaying}
               speed={speed}
               onPlayingChange={setIsPlaying}
+              onStepControls={handleStepControls}
             />
           </div>
           

@@ -1,5 +1,5 @@
 export interface AlgorithmStep {
-  type: 'compare' | 'swap' | 'set' | 'highlight' | 'complete';
+  type: 'compare' | 'swap' | 'set' | 'highlight' | 'complete' | 'remove';
   indices: number[];
   values?: number[];
   description: string;
@@ -31,5 +31,5 @@ export interface VisualizationState {
 export interface AlgorithmImplementation {
   info: AlgorithmInfo;
   generateSteps: (data: number[]) => AlgorithmStep[];
-  code: string;
+  code: Record<string, string>; // Maps language keys to code strings
 }
