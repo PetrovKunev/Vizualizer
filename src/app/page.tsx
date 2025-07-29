@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { Footer } from '@/components/layout/Footer';
 import { AlgorithmVisualizer } from '@/components/visualization/AlgorithmVisualizer';
 import { ControlPanel } from '@/components/controls/ControlPanel';
 import { CodeViewer } from '@/components/ui/CodeViewer';
@@ -44,6 +45,8 @@ export default function Home() {
             <CodeViewer algorithm={selectedAlgorithm} />
           </div>
         </div>
+        
+        <Footer />
       </div>
     </div>
   );
