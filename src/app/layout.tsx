@@ -6,6 +6,12 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'Algorithm Visualizer',
   description: 'Interactive visualization of algorithms and data structures',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
