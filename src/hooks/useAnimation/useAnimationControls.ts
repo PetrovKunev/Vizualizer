@@ -68,8 +68,8 @@ export function useAnimationControls({
           onStepChange?.(next);
           
           if (next >= steps.length - 1) {
-            setIsPlaying(false);
-            return prev + 1;
+            // Don't automatically stop playing, let external control handle it
+            return next;
           }
           return next;
         });

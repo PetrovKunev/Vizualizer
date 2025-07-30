@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Footer } from '@/components/layout/Footer';
@@ -20,13 +20,13 @@ export default function Home() {
     reset: () => void;
   } | null>(null);
 
-  const handleStepControls = (controls: {
+  const handleStepControls = useCallback((controls: {
     stepForward: () => void;
     stepBackward: () => void;
     reset: () => void;
   }) => {
     stepControlsRef.current = controls;
-  };
+  }, []);
 
   return (
     <div className="flex h-screen">

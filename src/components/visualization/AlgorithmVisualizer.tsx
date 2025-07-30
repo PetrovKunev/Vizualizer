@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAlgorithmImplementation, generateRandomArray } from '@/lib/algorithmRegistry';
 import { useAnimationControls } from '@/hooks/useAnimation/useAnimationControls';
@@ -46,29 +46,8 @@ export function AlgorithmVisualizer({
     return algorithm ? algorithm.generateSteps(data) : [];
   }, [algorithm, data]);
 
-  const animationControls = useAnimationControls({
-    steps,
-    speed,
-    onStepChange: (stepIndex) => {
-      if (stepIndex >= 0 && stepIndex < steps.length) {
-        const step = steps[stepIndex];
-        updateVisualState(step);
-      }
-    },
-  });
-
-  // Pass step controls to parent component
-  useEffect(() => {
-    if (onStepControls) {
-      onStepControls({
-        stepForward: animationControls.stepForward,
-        stepBackward: animationControls.stepBackward,
-        reset: animationControls.reset,
-      });
-    }
-  }, [animationControls.stepForward, animationControls.stepBackward, animationControls.reset, onStepControls]);
-
-  const updateVisualState = (step: AlgorithmStep) => {
+  // Memoize updateVisualState to prevent recreating on every render
+  const updateVisualState = useCallback((step: AlgorithmStep) => {
     setVisualState(prev => {
       const newState = { ...prev };
       
@@ -84,10 +63,13 @@ export function AlgorithmVisualizer({
         case 'swap':
           newState.swapping = step.indices;
           // Update the actual data for swaps
-          if (step.values && step.indices.length === 2) {
-            const newData = [...data];
-            [newData[step.indices[0]], newData[step.indices[1]]] = [step.values[0], step.values[1]];
-            setData(newData);
+          if (step.values && step.indices.length === 2 && step.values.length >= 2) {
+            setData(currentData => {
+              const newData = [...currentData];
+              const values = step.values!;
+              [newData[step.indices[0]], newData[step.indices[1]]] = [values[0], values[1]];
+              return newData;
+            });
           }
           break;
         case 'highlight':
@@ -99,60 +81,104 @@ export function AlgorithmVisualizer({
         case 'set':
           // Handle set operations (like in merge sort and adding new elements)
           if (step.values && step.indices.length === 1) {
-            const newData = [...data];
             const index = step.indices[0];
             const value = step.values[0];
-            
-            // If the index is beyond the current array length, add the element
-            if (index >= newData.length) {
-              newData.push(value);
-            } else {
-              // Otherwise, set the value at the existing index
-              newData[index] = value;
-            }
-            setData(newData);
+            setData(currentData => {
+              const newData = [...currentData];
+              // If the index is beyond the current array length, add the element
+              if (index >= newData.length) {
+                newData.push(value);
+              } else {
+                // Otherwise, set the value at the existing index
+                newData[index] = value;
+              }
+              return newData;
+            });
           }
           break;
         case 'remove':
           // Handle remove operations for data structures
           if (step.indices.length === 1) {
-            const newData = [...data];
-            // Always use the appropriate method for each data structure
-            if (algorithmId === 'stack') {
-              // Stack always removes from the end (LIFO)
-              newData.pop();
-            } else if (algorithmId === 'queue') {
-              // Queue always removes from the beginning (FIFO)
-              newData.shift();
-            } else {
-              // For list and linkedList, remove at specific index
-              const index = step.indices[0];
-              if (index >= 0 && index < newData.length) {
-                newData.splice(index, 1);
+            setData(currentData => {
+              const newData = [...currentData];
+              // Always use the appropriate method for each data structure
+              if (algorithmId === 'stack') {
+                // Stack always removes from the end (LIFO)
+                newData.pop();
+              } else if (algorithmId === 'queue') {
+                // Queue always removes from the beginning (FIFO)
+                newData.shift();
+              } else {
+                // For list and linkedList, remove at specific index
+                const index = step.indices[0];
+                if (index >= 0 && index < newData.length) {
+                  newData.splice(index, 1);
+                }
               }
-            }
-            setData(newData);
+              return newData;
+            });
           }
           break;
       }
 
       return newState;
     });
-  };
+  }, [algorithmId]);
+
+  // Memoize the onStepChange callback to prevent recreating on every render
+  const onStepChange = useCallback((stepIndex: number) => {
+    if (stepIndex >= 0 && stepIndex < steps.length) {
+      const step = steps[stepIndex];
+      updateVisualState(step);
+    }
+  }, [steps, updateVisualState]);
+
+  const animationControls = useAnimationControls({
+    steps,
+    speed,
+    onStepChange,
+  });
+
+  // Use refs to track the last known states to prevent infinite loops
+  const lastIsPlayingRef = useRef(isPlaying);
+  const lastAnimationIsPlayingRef = useRef(animationControls.isPlaying);
+
+  // Pass step controls to parent component
+  useEffect(() => {
+    if (onStepControls) {
+      onStepControls({
+        stepForward: animationControls.stepForward,
+        stepBackward: animationControls.stepBackward,
+        reset: animationControls.reset,
+      });
+    }
+  }, [onStepControls, animationControls]);
 
   // Sync external play state with internal controls
   useEffect(() => {
-    if (isPlaying && !animationControls.isPlaying) {
-      animationControls.play();
-    } else if (!isPlaying && animationControls.isPlaying) {
-      animationControls.pause();
+    // Only sync if the external state changed and it's different from internal state
+    if (isPlaying !== lastIsPlayingRef.current) {
+      lastIsPlayingRef.current = isPlaying;
+      
+      if (isPlaying && !animationControls.isPlaying) {
+        animationControls.play();
+      } else if (!isPlaying && animationControls.isPlaying) {
+        animationControls.pause();
+      }
     }
   }, [isPlaying, animationControls]);
 
   // Update external play state when internal state changes
   useEffect(() => {
-    onPlayingChange(animationControls.isPlaying);
-  }, [animationControls.isPlaying, onPlayingChange]);
+    // Only update if the internal state changed and it's different from external state
+    if (animationControls.isPlaying !== lastAnimationIsPlayingRef.current) {
+      lastAnimationIsPlayingRef.current = animationControls.isPlaying;
+      
+      if (animationControls.isPlaying !== isPlaying) {
+        onPlayingChange(animationControls.isPlaying);
+      }
+    }
+  }, [animationControls.isPlaying, isPlaying, onPlayingChange]);
 
   const generateNewData = () => {
     const newData = generateRandomArray(10);
