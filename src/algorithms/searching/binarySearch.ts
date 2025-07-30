@@ -75,7 +75,7 @@ export const binarySearchImplementation: AlgorithmImplementation = {
     },
     spaceComplexity: 'O(1)',
   },
-  generateSteps: generateBinarySearchSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateBinarySearchSteps(data, value || 5),
   code: {
     javascript: `function binarySearch(arr, target) {
   let left = 0;

@@ -26,6 +26,7 @@ export function AlgorithmVisualizer({
   onStepControls,
 }: AlgorithmVisualizerProps) {
   const [data, setData] = useState<number[]>([]);
+  const [currentOperation, setCurrentOperation] = useState<string>('');
   const [visualState, setVisualState] = useState({
     comparing: [] as number[],
     swapping: [] as number[],
@@ -183,6 +184,7 @@ export function AlgorithmVisualizer({
   const generateNewData = () => {
     const newData = generateRandomArray(10);
     setData(newData);
+    setCurrentOperation('');
     setVisualState({
       comparing: [],
       swapping: [],
@@ -203,40 +205,46 @@ export function AlgorithmVisualizer({
   const isStack = algorithmId === 'stack';
   const isQueue = algorithmId === 'queue';
   const isLinkedList = algorithmId === 'linked-list';
+  const isList = algorithmId === 'list';
+  const isDataStructure = isStack || isQueue || isLinkedList || isList;
 
   return (
-    <div className="flex-1 bg-gray-50 p-8">
-      <div className="card p-6 h-full">
-        <div className="flex items-center justify-between mb-6">
+    <div className="flex-1 bg-gray-50 p-8 overflow-hidden">
+      <div className="card p-6 h-full flex flex-col">
+        <div className="flex items-center justify-between mb-6 flex-shrink-0">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
               {algorithm?.info.name || 'Algorithm Visualization'}
             </h3>
-            {currentStep && (
+            {currentStep && !isDataStructure && (
               <p className="text-sm text-gray-600 mt-1">{currentStep.description}</p>
             )}
           </div>
           <div className="flex space-x-2">
-            <button
-              onClick={animationControls.stepBackward}
-              disabled={!animationControls.canStepBackward || animationControls.isPlaying}
-              className="btn-secondary text-sm disabled:opacity-50"
-            >
-              Step Back
-            </button>
-            <button
-              onClick={animationControls.stepForward}
-              disabled={!animationControls.canStepForward || animationControls.isPlaying}
-              className="btn-secondary text-sm disabled:opacity-50"
-            >
-              Step Forward
-            </button>
-            <button
-              onClick={animationControls.reset}
-              className="btn-secondary text-sm"
-            >
-              Reset
-            </button>
+            {!isDataStructure && (
+              <>
+                <button
+                  onClick={animationControls.stepBackward}
+                  disabled={!animationControls.canStepBackward || animationControls.isPlaying}
+                  className="btn-secondary text-sm disabled:opacity-50"
+                >
+                  Step Back
+                </button>
+                <button
+                  onClick={animationControls.stepForward}
+                  disabled={!animationControls.canStepForward || animationControls.isPlaying}
+                  className="btn-secondary text-sm disabled:opacity-50"
+                >
+                  Step Forward
+                </button>
+                <button
+                  onClick={animationControls.reset}
+                  className="btn-secondary text-sm"
+                >
+                  Reset
+                </button>
+              </>
+            )}
             <button
               onClick={generateNewData}
               className="btn-secondary text-sm"
@@ -244,7 +252,7 @@ export function AlgorithmVisualizer({
               Generate New Data
             </button>
             {/* Data structure specific buttons */}
-            {(isStack || isQueue || isLinkedList) && (
+            {(isStack || isQueue || isLinkedList || isList) && (
               <div className="flex space-x-2 ml-4">
                 {isStack && (
                   <>
@@ -260,6 +268,8 @@ export function AlgorithmVisualizer({
                           highlighted: [newData.length - 1],
                           subarrays: [],
                         });
+                        // Set current operation
+                        setCurrentOperation(`Pushing value ${newValue} to the stack`);
                         // Reset animation controls
                         animationControls.reset();
                       }}
@@ -270,6 +280,7 @@ export function AlgorithmVisualizer({
                     <button
                       onClick={() => {
                         if (data.length > 0) {
+                          const poppedValue = data[data.length - 1];
                           const newData = [...data];
                           newData.pop();
                           setData(newData);
@@ -280,6 +291,8 @@ export function AlgorithmVisualizer({
                             highlighted: [],
                             subarrays: [],
                           });
+                          // Set current operation
+                          setCurrentOperation(`Popping element ${poppedValue} from the top of the stack`);
                           // Reset animation controls
                           animationControls.reset();
                         }
@@ -296,15 +309,20 @@ export function AlgorithmVisualizer({
                     <button
                       onClick={() => {
                         const newValue = Math.floor(Math.random() * 90) + 10;
-                        const newData = [...data, newValue];
-                        setData(newData);
+                        // Update data first
+                        setData(currentData => {
+                          const newData = [...currentData, newValue];
+                          return newData;
+                        });
                         setVisualState({
                           comparing: [],
                           swapping: [],
                           sorted: [],
-                          highlighted: [newData.length - 1],
+                          highlighted: [data.length], // Highlight the new element
                           subarrays: [],
                         });
+                        // Set current operation
+                        setCurrentOperation(`Enqueuing value ${newValue} to the queue`);
                         // Reset animation controls
                         animationControls.reset();
                       }}
@@ -315,9 +333,13 @@ export function AlgorithmVisualizer({
                     <button
                       onClick={() => {
                         if (data.length > 0) {
-                          const newData = [...data];
-                          newData.shift();
-                          setData(newData);
+                          const dequeuedValue = data[0];
+                          // Update data first
+                          setData(currentData => {
+                            const newData = [...currentData];
+                            newData.shift();
+                            return newData;
+                          });
                           setVisualState({
                             comparing: [],
                             swapping: [],
@@ -325,6 +347,8 @@ export function AlgorithmVisualizer({
                             highlighted: [],
                             subarrays: [],
                           });
+                          // Set current operation
+                          setCurrentOperation(`Dequeuing element ${dequeuedValue} from the front of the queue`);
                           // Reset animation controls
                           animationControls.reset();
                         }
@@ -350,6 +374,8 @@ export function AlgorithmVisualizer({
                           highlighted: [newData.length - 1],
                           subarrays: [],
                         });
+                        // Set current operation
+                        setCurrentOperation(`Adding node with value ${newValue} to the linked list`);
                         // Reset animation controls
                         animationControls.reset();
                       }}
@@ -360,6 +386,7 @@ export function AlgorithmVisualizer({
                     <button
                       onClick={() => {
                         if (data.length > 0) {
+                          const removedValue = data[data.length - 1];
                           const newData = [...data];
                           newData.pop();
                           setData(newData);
@@ -370,6 +397,8 @@ export function AlgorithmVisualizer({
                             highlighted: [],
                             subarrays: [],
                           });
+                          // Set current operation
+                          setCurrentOperation(`Removing node with value ${removedValue} from the linked list`);
                           // Reset animation controls
                           animationControls.reset();
                         }
@@ -381,6 +410,56 @@ export function AlgorithmVisualizer({
                     </button>
                   </>
                 )}
+                {isList && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const newValue = Math.floor(Math.random() * 90) + 10;
+                        const newData = [...data, newValue];
+                        setData(newData);
+                        setVisualState({
+                          comparing: [],
+                          swapping: [],
+                          sorted: [],
+                          highlighted: [newData.length - 1],
+                          subarrays: [],
+                        });
+                        // Set current operation
+                        setCurrentOperation(`Added ${newValue} to the end of the list at index ${newData.length - 1}`);
+                        // Reset animation controls
+                        animationControls.reset();
+                      }}
+                      className="btn-primary text-sm"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (data.length > 0) {
+                          const removedValue = data[data.length - 1];
+                          const newData = [...data];
+                          newData.pop();
+                          setData(newData);
+                          setVisualState({
+                            comparing: [],
+                            swapping: [],
+                            sorted: [],
+                            highlighted: [],
+                            subarrays: [],
+                          });
+                          // Set current operation
+                          setCurrentOperation(`Removed element ${removedValue} from the end of the list`);
+                          // Reset animation controls
+                          animationControls.reset();
+                        }
+                      }}
+                      disabled={data.length === 0}
+                      className="btn-secondary text-sm disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -388,7 +467,7 @@ export function AlgorithmVisualizer({
 
         {/* Enhanced visualization for complex algorithms */}
         {isComplexAlgorithm && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200 flex-shrink-0">
             <div className="flex items-center space-x-2 text-sm text-blue-700">
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
               <span>Enhanced visualization mode for {algorithm?.info.name}</span>
@@ -398,14 +477,14 @@ export function AlgorithmVisualizer({
 
         {/* Stack-specific visualization */}
         {isStack && (
-          <div className="flex flex-col items-center justify-center h-[600px]">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-0">
             <div className="flex flex-col items-center space-y-6">
               <div className="text-sm text-gray-600">Stack (LIFO - Last In, First Out)</div>
               
               {/* Operation indicator - moved to top with more space */}
-              {currentStep && (
+              {(currentStep || currentOperation) && (
                 <div className="text-xs text-blue-600 font-medium bg-blue-100 px-3 py-2 rounded max-w-64 text-center shadow-sm">
-                  {currentStep.description}
+                  {currentOperation || currentStep?.description}
                 </div>
               )}
               
@@ -459,14 +538,13 @@ export function AlgorithmVisualizer({
 
         {/* Queue-specific visualization */}
         {isQueue && (
-          <div className="flex flex-col items-center justify-center h-[600px]">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-0">
             <div className="flex flex-col items-center space-y-6">
-              <div className="text-sm text-gray-600">Queue (FIFO - First In, First Out)</div>
               
               {/* Operation indicator - moved to top with more space */}
-              {currentStep && (
+              {(currentStep || currentOperation) && (
                 <div className="text-xs text-blue-600 font-medium bg-blue-100 px-3 py-2 rounded max-w-64 text-center shadow-sm">
-                  {currentStep.description}
+                  {currentOperation || currentStep?.description}
                 </div>
               )}
               
@@ -530,67 +608,71 @@ export function AlgorithmVisualizer({
 
         {/* Linked List visualization */}
         {isLinkedList && (
-          <div className="flex flex-col items-center justify-center h-96">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-0">
             <div className="text-sm text-gray-600 mb-4">Linked List</div>
             {data.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-gray-500 text-sm">Empty Linked List</div>
               </div>
             ) : (
-              <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-4 w-full">
                 {/* Operation indicator */}
-                {currentStep && (
+                {(currentStep || currentOperation) && (
                   <div className="text-xs text-blue-600 font-medium bg-blue-100 px-2 py-1 rounded">
-                    {currentStep.description}
+                    {currentOperation || currentStep?.description}
                   </div>
                 )}
-                <div className="flex items-center space-x-4">
-                  <AnimatePresence mode="popLayout">
-                    {data.map((value, index) => (
-                      <motion.div
-                        key={`node-${index}-${value}`}
-                        layout
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ 
-                          opacity: 1, 
-                          scale: visualState.highlighted.includes(index) ? 1.1 : 1,
-                        }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="flex items-center"
-                      >
-                        <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center border-2 transition-all duration-300 ${
-                          visualState.highlighted.includes(index)
-                            ? 'bg-blue-500 text-white border-blue-600'
-                            : 'bg-white border-gray-300'
-                        }`}>
-                          <div className="text-lg font-bold">{value}</div>
-                          <div className="text-xs opacity-60">Node {index}</div>
-                        </div>
-                        {index < data.length - 1 && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="ml-2 mr-2"
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </motion.div>
-                        )}
-                      </motion.div>
-                    ))}
-                    {data.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-gray-500 font-mono"
-                      >
-                        NULL
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                
+                {/* Scrollable container for linked list nodes */}
+                <div className="w-full overflow-x-auto">
+                  <div className="flex items-center space-x-4 min-w-max px-4 py-2">
+                    <AnimatePresence mode="popLayout">
+                      {data.map((value, index) => (
+                        <motion.div
+                          key={`node-${index}-${value}`}
+                          layout
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ 
+                            opacity: 1, 
+                            scale: visualState.highlighted.includes(index) ? 1.1 : 1,
+                          }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="flex items-center flex-shrink-0"
+                        >
+                          <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center border-2 transition-all duration-300 ${
+                            visualState.highlighted.includes(index)
+                              ? 'bg-blue-500 text-white border-blue-600'
+                              : 'bg-white border-gray-300'
+                          }`}>
+                            <div className="text-lg font-bold">{value}</div>
+                            <div className="text-xs opacity-60">Node {index}</div>
+                          </div>
+                          {index < data.length - 1 && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              className="ml-2 mr-2 flex-shrink-0"
+                            >
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      ))}
+                      {data.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="text-gray-500 font-mono flex-shrink-0"
+                        >
+                          NULL
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             )}
@@ -602,7 +684,7 @@ export function AlgorithmVisualizer({
 
         {/* Generic bar chart visualization for other algorithms */}
         {!isStack && !isQueue && !isLinkedList && (
-          <div className="flex items-end justify-center space-x-2 h-96">
+          <div className="flex items-end justify-center space-x-2 flex-1 min-h-0">
             {data.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-gray-500">Loading...</div>
@@ -650,7 +732,7 @@ export function AlgorithmVisualizer({
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-6 text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 rounded bg-algorithm-compare"></div>
@@ -676,9 +758,11 @@ export function AlgorithmVisualizer({
             )}
           </div>
           
-          <div className="text-sm text-gray-600">
-            Step {animationControls.currentStep + 1} of {steps.length}
-          </div>
+          {!isDataStructure && (
+            <div className="text-sm text-gray-600">
+              Step {animationControls.currentStep + 1} of {steps.length}
+            </div>
+          )}
         </div>
       </div>
     </div>

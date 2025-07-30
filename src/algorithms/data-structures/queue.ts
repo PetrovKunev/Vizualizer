@@ -113,7 +113,18 @@ export const queueImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: (data: number[]) => generateQueueEnqueueSteps(data, 15), // Default enqueue operation
+  generateSteps: (data: number[], operation: string = 'enqueue', value?: number) => {
+    switch (operation) {
+      case 'enqueue':
+        return generateQueueEnqueueSteps(data, value || Math.floor(Math.random() * 90) + 10);
+      case 'dequeue':
+        return generateQueueDequeueSteps(data);
+      case 'peek':
+        return generateQueuePeekSteps(data);
+      default:
+        return generateQueueEnqueueSteps(data, value || Math.floor(Math.random() * 90) + 10);
+    }
+  },
   code: {
     javascript: `class Queue {
   constructor() {

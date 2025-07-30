@@ -153,7 +153,7 @@ export const listImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: (data: number[]) => generateListAddSteps(data, 20), // Default add operation
+  generateSteps: (data: number[], operation?: string, value?: number) => generateListAddSteps(data, value || 20), // Default add operation
   code: {
     javascript: `class List {
   constructor() {

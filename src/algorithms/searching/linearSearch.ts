@@ -50,7 +50,7 @@ export const linearSearchImplementation: AlgorithmImplementation = {
     },
     spaceComplexity: 'O(1)',
   },
-  generateSteps: generateLinearSearchSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateLinearSearchSteps(data, value || 5),
   code: {
     javascript: `function linearSearch(arr, target) {
   for (let i = 0; i < arr.length; i++) {

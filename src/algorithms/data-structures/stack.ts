@@ -170,7 +170,7 @@ export const stackImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: (data: number[]) => generateStackSteps(data), // Use the new function
+  generateSteps: (data: number[], operation?: string, value?: number) => generateStackSteps(data), // Use the new function
   code: {
     javascript: `class Stack {
   constructor() {

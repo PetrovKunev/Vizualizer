@@ -92,7 +92,7 @@ export const binaryTreeTraversalImplementation: AlgorithmImplementation = {
     },
     spaceComplexity: 'O(h)',
   },
-  generateSteps: generateBinaryTreeTraversalSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateBinaryTreeTraversalSteps(data),
   code: {
     javascript: `class TreeNode {
   constructor(value) {

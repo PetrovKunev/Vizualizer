@@ -30,6 +30,6 @@ export interface VisualizationState {
 
 export interface AlgorithmImplementation {
   info: AlgorithmInfo;
-  generateSteps: (data: number[]) => AlgorithmStep[];
+  generateSteps: (data: number[], operation?: string, value?: number) => AlgorithmStep[];
   code: Record<string, string>; // Maps language keys to code strings
 }

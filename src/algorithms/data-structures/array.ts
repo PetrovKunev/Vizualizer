@@ -124,7 +124,7 @@ export const arrayImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: (data: number[]) => generateArraySearchSteps(data, 5), // Default search for value 5
+  generateSteps: (data: number[], operation?: string, value?: number) => generateArraySearchSteps(data, value || 5), // Default search for value 5
   code: {
     javascript: `// Array Access - O(1)
 const element = array[index];

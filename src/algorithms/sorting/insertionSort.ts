@@ -74,7 +74,7 @@ export const insertionSortImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: generateInsertionSortSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateInsertionSortSteps(data),
   code: {
     javascript: `function insertionSort(arr) {
   const n = arr.length;

@@ -83,7 +83,7 @@ export const selectionSortImplementation: AlgorithmImplementation = {
     stable: false,
     inPlace: true,
   },
-  generateSteps: generateSelectionSortSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateSelectionSortSteps(data),
   code: {
     javascript: `function selectionSort(arr) {
   const n = arr.length;

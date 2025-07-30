@@ -94,7 +94,7 @@ export const breadthFirstSearchImplementation: AlgorithmImplementation = {
     },
     spaceComplexity: 'O(V)',
   },
-  generateSteps: generateBreadthFirstSearchSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateBreadthFirstSearchSteps(data),
   code: {
     javascript: `function breadthFirstSearch(graph, startNode) {
   const visited = new Set();

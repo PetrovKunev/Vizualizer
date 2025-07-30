@@ -68,7 +68,7 @@ export const bubbleSortImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: generateBubbleSortSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateBubbleSortSteps(data),
   code: {
     javascript: `function bubbleSort(arr) {
   const n = arr.length;

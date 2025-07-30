@@ -97,7 +97,7 @@ export const quickSortImplementation: AlgorithmImplementation = {
     stable: false,
     inPlace: true,
   },
-  generateSteps: generateQuickSortSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateQuickSortSteps(data),
   code: {
     javascript: `function quickSort(arr) {
   quickSortHelper(arr, 0, arr.length - 1);

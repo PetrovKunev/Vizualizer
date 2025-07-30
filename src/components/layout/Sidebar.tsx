@@ -38,7 +38,7 @@ export function Sidebar({ selectedAlgorithm, onAlgorithmSelect }: SidebarProps) 
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+    <aside className="w-64 bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0">
       <div className="p-4">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Algorithms</h2>
         

@@ -152,7 +152,7 @@ export const linkedListImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: true,
   },
-  generateSteps: (data: number[]) => arrayToLinkedListSteps(data), // Default to visualization
+  generateSteps: (data: number[], operation?: string, value?: number) => arrayToLinkedListSteps(data), // Default to visualization
   code: {
     javascript: `class Node {
   constructor(data) {

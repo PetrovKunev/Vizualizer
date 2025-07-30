@@ -87,7 +87,7 @@ export const depthFirstSearchImplementation: AlgorithmImplementation = {
     },
     spaceComplexity: 'O(V)',
   },
-  generateSteps: generateDepthFirstSearchSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateDepthFirstSearchSteps(data),
   code: {
     javascript: `function depthFirstSearch(graph, startNode) {
   const visited = new Set();

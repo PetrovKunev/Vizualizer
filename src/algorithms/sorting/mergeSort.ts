@@ -137,7 +137,7 @@ export const mergeSortImplementation: AlgorithmImplementation = {
     stable: true,
     inPlace: false,
   },
-  generateSteps: generateMergeSortSteps,
+  generateSteps: (data: number[], operation?: string, value?: number) => generateMergeSortSteps(data),
   code: {
     javascript: `function mergeSort(arr) {
   if (arr.length <= 1) return arr;
