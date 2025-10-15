@@ -14,6 +14,8 @@ import { stackImplementation } from '@/algorithms/data-structures/stack';
 import { queueImplementation } from '@/algorithms/data-structures/queue';
 import { linkedListImplementation } from '@/algorithms/data-structures/linkedList';
 import { listImplementation } from '@/algorithms/data-structures/list';
+import { ifElseImplementation } from '@/algorithms/control-flow/ifElse';
+import { ifElseIfElseImplementation } from '@/algorithms/control-flow/ifElseIfElse';
 
 export const algorithmRegistry: Record<string, AlgorithmImplementation> = {
   'bubble-sort': bubbleSortImplementation,
@@ -31,6 +33,8 @@ export const algorithmRegistry: Record<string, AlgorithmImplementation> = {
   'queue': queueImplementation,
   'linked-list': linkedListImplementation,
   'list': listImplementation,
+  'if-else': ifElseImplementation,
+  'if-else-if-else': ifElseIfElseImplementation,
 };
 
 export function getAlgorithmImplementation(algorithmId: string): AlgorithmImplementation | null {

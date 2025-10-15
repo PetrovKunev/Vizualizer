@@ -35,6 +35,7 @@ export function Sidebar({ selectedAlgorithm, onAlgorithmSelect }: SidebarProps) 
     graph: 'Graph Algorithms',
     tree: 'Tree Algorithms',
     'data-structure': 'Data Structures',
+    'control-flow': 'Control Flow',
   };
 
   return (

@@ -8,7 +8,7 @@ export interface AlgorithmStep {
 export interface AlgorithmInfo {
   id: string;
   name: string;
-  category: 'sorting' | 'searching' | 'graph' | 'tree' | 'data-structure';
+  category: 'sorting' | 'searching' | 'graph' | 'tree' | 'data-structure' | 'control-flow';
   description: string;
   timeComplexity: {
     best: string;
@@ -32,4 +32,5 @@ export interface AlgorithmImplementation {
   info: AlgorithmInfo;
   generateSteps: (data: number[], operation?: string, value?: number) => AlgorithmStep[];
   code: Record<string, string>; // Maps language keys to code strings
+  generateInitialData?: () => number[];
 }

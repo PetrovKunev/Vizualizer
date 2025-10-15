@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getAlgorithmImplementation, generateRandomArray } from '@/lib/algorithmRegistry';
 import { useAnimationControls } from '@/hooks/useAnimation/useAnimationControls';
 import { AlgorithmStep } from '@/types/algorithm';
+import { ControlFlowDiagram } from '@/components/visualization/ControlFlowDiagram';
 
 interface AlgorithmVisualizerProps {
   algorithmId: string;
@@ -35,14 +36,37 @@ export function AlgorithmVisualizer({
     subarrays: [] as number[][], // For merge sort and other divide-and-conquer algorithms
   });
 
-  // Generate initial data only on client side to prevent hydration mismatch
-  useEffect(() => {
-    if (data.length === 0) {
-      setData(generateRandomArray(10));
-    }
-  }, [data.length, algorithmId]);
-
   const algorithm = getAlgorithmImplementation(algorithmId);
+  const createInitialData = useCallback(() => {
+    if (!algorithm) {
+      return [];
+    }
+
+    if (typeof algorithm.generateInitialData === 'function') {
+      return algorithm.generateInitialData();
+    }
+
+    return generateRandomArray(10);
+  }, [algorithm]);
+
+  useEffect(() => {
+    if (!algorithm) {
+      setData([]);
+      return;
+    }
+
+    const initialData = createInitialData();
+    setData(initialData);
+    setCurrentOperation('');
+    setVisualState({
+      comparing: [],
+      swapping: [],
+      sorted: [],
+      highlighted: [],
+      subarrays: [],
+    });
+  }, [algorithm, algorithmId, createInitialData]);
+
   const steps = useMemo(() => {
     return algorithm ? algorithm.generateSteps(data) : [];
   }, [algorithm, data]);
@@ -139,6 +163,11 @@ export function AlgorithmVisualizer({
     speed,
     onStepChange,
   });
+  const resetAnimation = animationControls.reset;
+
+  useEffect(() => {
+    resetAnimation();
+  }, [algorithmId, resetAnimation]);
 
   // Use refs to track the last known states to prevent infinite loops
   const lastIsPlayingRef = useRef(isPlaying);
@@ -182,7 +211,7 @@ export function AlgorithmVisualizer({
   }, [animationControls.isPlaying, isPlaying, onPlayingChange]);
 
   const generateNewData = () => {
-    const newData = generateRandomArray(10);
+    const newData = createInitialData();
     setData(newData);
     setCurrentOperation('');
     setVisualState({
@@ -200,6 +229,7 @@ export function AlgorithmVisualizer({
 
   // Enhanced visualization for complex algorithms
   const isComplexAlgorithm = algorithmId.includes('merge') || algorithmId.includes('quick') || algorithmId.includes('graph') || algorithmId.includes('tree');
+  const isControlFlow = algorithm?.info.category === 'control-flow';
   
   // Check if this is a special data structure
   const isStack = algorithmId === 'stack';
@@ -682,8 +712,18 @@ export function AlgorithmVisualizer({
           </div>
         )}
 
+        {/* Control flow visualization */}
+        {isControlFlow && (
+          <ControlFlowDiagram
+            algorithmId={algorithmId}
+            data={data}
+            visualState={visualState}
+            currentStep={currentStep}
+          />
+        )}
+
         {/* Generic bar chart visualization for other algorithms */}
-        {!isStack && !isQueue && !isLinkedList && (
+        {!isStack && !isQueue && !isLinkedList && !isControlFlow && (
           <div className="flex items-end justify-center space-x-2 flex-1 min-h-0">
             {data.length === 0 ? (
               <div className="flex items-center justify-center h-full">
@@ -734,27 +774,46 @@ export function AlgorithmVisualizer({
 
         <div className="mt-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-6 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded bg-algorithm-compare"></div>
-              <span>Comparing</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded bg-algorithm-swap"></div>
-              <span>Swapping</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded bg-algorithm-current"></div>
-              <span>Current</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded bg-algorithm-sorted"></div>
-              <span>Sorted</span>
-            </div>
-            {isComplexAlgorithm && (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 rounded bg-blue-500"></div>
-                <span>Enhanced</span>
-              </div>
+            {isControlFlow ? (
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-blue-500"></div>
+                  <span>Active</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-compare"></div>
+                  <span>Evaluating</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-sorted"></div>
+                  <span>Executed</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-compare"></div>
+                  <span>Comparing</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-swap"></div>
+                  <span>Swapping</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-current"></div>
+                  <span>Current</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded bg-algorithm-sorted"></div>
+                  <span>Sorted</span>
+                </div>
+                {isComplexAlgorithm && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded bg-blue-500"></div>
+                    <span>Enhanced</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
           

@@ -6,6 +6,7 @@ export const ALGORITHM_CATEGORIES = {
   GRAPH: 'graph',
   TREE: 'tree',
   DATA_STRUCTURE: 'data-structure',
+  CONTROL_FLOW: 'control-flow',
 } as const;
 
 export const SORTING_ALGORITHMS: AlgorithmInfo[] = [
@@ -223,10 +224,38 @@ export const DATA_STRUCTURE_ALGORITHMS: AlgorithmInfo[] = [
   },
 ];
 
+export const CONTROL_FLOW_ALGORITHMS: AlgorithmInfo[] = [
+  {
+    id: 'if-else',
+    name: 'If / Else',
+    category: 'control-flow',
+    description: 'Evaluates a boolean condition and executes either the if-block or the else-block based on the result.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(1)',
+      worst: 'O(1)',
+    },
+    spaceComplexity: 'O(1)',
+  },
+  {
+    id: 'if-else-if-else',
+    name: 'If / Else If / Else',
+    category: 'control-flow',
+    description: 'Evaluates chained conditions in order until one evaluates to true or the final else-block executes.',
+    timeComplexity: {
+      best: 'O(1)',
+      average: 'O(1)',
+      worst: 'O(1)',
+    },
+    spaceComplexity: 'O(1)',
+  },
+];
+
 export const ALL_ALGORITHMS = [
   ...SORTING_ALGORITHMS,
   ...SEARCHING_ALGORITHMS,
   ...GRAPH_ALGORITHMS,
   ...TREE_ALGORITHMS,
   ...DATA_STRUCTURE_ALGORITHMS,
+  ...CONTROL_FLOW_ALGORITHMS,
 ];
