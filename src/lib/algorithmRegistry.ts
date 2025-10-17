@@ -16,6 +16,7 @@ import { linkedListImplementation } from '@/algorithms/data-structures/linkedLis
 import { listImplementation } from '@/algorithms/data-structures/list';
 import { ifElseImplementation } from '@/algorithms/control-flow/ifElse';
 import { ifElseIfElseImplementation } from '@/algorithms/control-flow/ifElseIfElse';
+import { forLoopImplementation } from '@/algorithms/control-flow/forLoop';
 
 export const algorithmRegistry: Record<string, AlgorithmImplementation> = {
   'bubble-sort': bubbleSortImplementation,
@@ -33,6 +34,7 @@ export const algorithmRegistry: Record<string, AlgorithmImplementation> = {
   'queue': queueImplementation,
   'linked-list': linkedListImplementation,
   'list': listImplementation,
+  'for-loop': forLoopImplementation,
   'if-else': ifElseImplementation,
   'if-else-if-else': ifElseIfElseImplementation,
 };

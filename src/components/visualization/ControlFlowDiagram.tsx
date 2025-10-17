@@ -44,6 +44,101 @@ interface ControlFlowConfig {
 }
 
 const CONTROL_FLOW_CONFIGS: Record<string, ControlFlowConfig> = {
+  'for-loop': {
+    nodes: [
+      { index: 0, label: 'Start', x: 50, y: 12 },
+      {
+        index: 1,
+        label: 'Initialization',
+        sublabel: (data) => {
+          const start = data[0] ?? 0;
+          return `Set i = ${start}`;
+        },
+        x: 28,
+        y: 32,
+      },
+      {
+        index: 2,
+        label: 'Condition',
+        sublabel: (data) => {
+          const end = data[1] ?? 5;
+          return `Is i < ${end}?`;
+        },
+        x: 72,
+        y: 32,
+      },
+      {
+        index: 3,
+        label: 'Loop Body',
+        sublabel: () => 'Runs when the condition is true',
+        x: 32,
+        y: 68,
+      },
+      {
+        index: 4,
+        label: 'Update',
+        sublabel: (data) => {
+          const step = data[2] ?? 1;
+          return `Increment i by ${step}`;
+        },
+        x: 68,
+        y: 68,
+      },
+      { index: 5, label: 'End', x: 72, y: 90 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 1, to: 2 },
+      { from: 2, to: 3, label: 'True', labelOffset: { x: -8, y: -2 } },
+      { from: 2, to: 5, label: 'False', labelOffset: { x: 6, y: -2 } },
+      { from: 3, to: 4 },
+      { from: 4, to: 2, label: 'Next iteration', labelOffset: { x: 10, y: 4 } },
+    ],
+    branchNodes: [5, 3],
+    branchLabels: {
+      3: 'Loop body executes (condition true)',
+      5: 'Loop exits when condition is false',
+    },
+    predictBranch: (data: number[]) => {
+      if (data.length === 0) {
+        return undefined;
+      }
+      const start = data[0] ?? 0;
+      const end = data[1] ?? start + 4;
+      const rawStep = data[2] ?? 1;
+      const step = rawStep > 0 ? rawStep : 1;
+
+      if (start < end && step > 0) {
+        return 3;
+      }
+
+      return 5;
+    },
+    scenarioDetails: (data: number[]) => {
+      const start = data[0] ?? 0;
+      const end = data[1] ?? start + 4;
+      const rawStep = data[2] ?? 1;
+      const step = rawStep > 0 ? rawStep : 1;
+
+      const iterations =
+        start < end && step > 0 ? Math.ceil((end - start) / step) : 0;
+      const finalValue = start + iterations * step;
+
+      return [
+        { label: 'Start', value: `i = ${start}` },
+        { label: 'End (exclusive)', value: end.toString() },
+        { label: 'Step', value: step.toString() },
+        {
+          label: 'Iterations',
+          value: iterations > 0 ? iterations.toString() : '0 (skipped)',
+        },
+        {
+          label: 'Value after loop',
+          value: `i = ${finalValue}`,
+        },
+      ];
+    },
+  },
   'if-else': {
     nodes: [
       { index: 0, label: 'Start', x: 50, y: 10 },

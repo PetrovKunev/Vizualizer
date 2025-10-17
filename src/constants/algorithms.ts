@@ -226,6 +226,18 @@ export const DATA_STRUCTURE_ALGORITHMS: AlgorithmInfo[] = [
 
 export const CONTROL_FLOW_ALGORITHMS: AlgorithmInfo[] = [
   {
+    id: 'for-loop',
+    name: 'For Loop',
+    category: 'control-flow',
+    description: 'Iterates from a starting value until the loop condition becomes false, running initialization, condition, body, and update clauses.',
+    timeComplexity: {
+      best: 'O(n)',
+      average: 'O(n)',
+      worst: 'O(n)',
+    },
+    spaceComplexity: 'O(1)',
+  },
+  {
     id: 'if-else',
     name: 'If / Else',
     category: 'control-flow',
